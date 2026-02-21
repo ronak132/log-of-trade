@@ -138,12 +138,49 @@ with tab2:
 
 with tab3:
     st.subheader("Deep Research on Market Trends & Broader Economy")
-    if st.button("📊 RUN DEEP RESEARCH (Anytime)", type="secondary", use_container_width=True):
-        with st.spinner("Analyzing macro, sectors, X sentiment, Fed, capex..."):
-            st.success("✅ Deep Research — Feb 21 2026")
-            st.markdown("**Broader Economy**: Soft landing intact. Hyperscaler AI capex >$500B projected for 2026. Fed still pricing 2 cuts.")
-            st.markdown("**Key Trend**: Rotation from software to pure infra (chips/cloud/servers) accelerating — NVDA/NBIS/ARM leading.")
-            st.markdown("**Risk**: Any inflation surprise → hedge 15% to QQQ.")
-            st.plotly_chart(px.line(pd.DataFrame({"Date": ["Feb17","Feb18","Feb19","Feb20","Feb21"], "Value": [1000,1032,1053,1068,1075]}), x="Date", y="Value"), use_container_width=True)
-
+    if st.button("📊 RUN DEEP RESEARCH POWERED BY GROK 4.20", type="secondary", use_container_width=True):
+        api_key = st.secrets.get("XAI_API_KEY") or st.text_input("Enter your xAI API Key (saved in secrets for future)", type="password")
+        if not api_key:
+            st.warning("Please enter your xAI API key above")
+        else:
+            with st.spinner("Grok 4.20 is now analyzing live market trends, broader economy, AI capex, Fed signals..."):
+                try:
+                    from grok import Grok
+                    client = Grok(api_key=api_key)
+                    
+                    prompt = f"""
+                    You are TradePulse Alpha — aggressive $1,000 trading engine.
+                    Current date: {datetime.now(et_tz).strftime('%B %d, %Y')}
+                    Current portfolio value: ${total_value:,.2f}
+                    Positions: {portfolio["positions"]}
+                    
+                    Analyze:
+                    1. Broader economy & macro (Fed, inflation, rates)
+                    2. AI capex rotation (hyperscalers $700B+ 2026 spend)
+                    3. Sector trends & X sentiment
+                    4. Specific recommendations for NVDA, NBIS, ARM, SMCI, PATH, QQQ to maximize returns in next 3 months
+                    5. Risk check vs $500 loss floor
+                    
+                    Keep output short, actionable, bullish but disciplined. End with exact BUY/SELL dollar amounts.
+                    """
+                    
+                    response = client.chat.completions.create(
+                        model="grok-4-20",
+                        messages=[{"role": "user", "content": prompt}],
+                        temperature=0.7,
+                        max_tokens=1200
+                    )
+                    
+                    grok_output = response.choices[0].message.content
+                    
+                    st.success("✅ Grok 4.20 Deep Research Complete")
+                    st.markdown(grok_output)
+                    
+                    # Auto-save research to file for history
+                    with open("deep_research_history.txt", "a") as f:
+                        f.write(f"\n\n=== {datetime.now(et_tz)} ===\n{grok_output}")
+                        
+                except Exception as e:
+                    st.error(f"API error: {e}. Check your key or try again.")
+                    
 st.caption("TradePulse Alpha v1.1 | Built to turn $1,000 into maximum money | Data via Yahoo Finance | Auto-saves | GitHub ready")
